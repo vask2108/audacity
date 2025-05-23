@@ -1,0 +1,42 @@
+name: Test the local build on ARM64
+
+on:
+  push:
+    branches:
+      - gh_runner_workflow_woa
+
+jobs:
+  build-arm64:
+    runs-on: self-hosted
+    name: Build on local ARM64 runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Print system info
+        shell: cmd
+        run: |
+          echo Running on %COMPUTERNAME%
+          echo Architecture: %PROCESSOR_ARCHITECTURE%
+          where cmake
+          where cl
+
+      - name: Test environment setup
+        shell: cmd
+        run: | 
+          call C:\wenv\arm64\activate.bat
+          echo Environment activated
+
+      - name: Configure CMake
+        shell: cmd
+        run: |
+          mkdir build
+          cd build
+          cmake -A arm64 -S .. -B .
+        
+      - name: Build
+        shell: cmd
+        run: |
+          cd build
+          cmake --build . --config Release
