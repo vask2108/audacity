@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-arm64:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Windows, ARM64]
     name: Build on local ARM64 runner
 
     steps:
@@ -19,24 +19,8 @@ jobs:
         run: |
           echo Running on %COMPUTERNAME%
           echo Architecture: %PROCESSOR_ARCHITECTURE%
-          where cmake
-          where cl
 
-      - name: Test environment setup
-        shell: cmd
-        run: | 
-          call C:\wenv\arm64\activate.bat
-          echo Environment activated
-
-      - name: Configure CMake
+      - name: Environment setup and run the build
         shell: cmd
         run: |
-          mkdir build
-          cd build
-          cmake -A arm64 -S .. -B .
-        
-      - name: Build
-        shell: cmd
-        run: |
-          cd build
-          cmake --build . --config Release
+          cmd.exe /c C:/wenv/arm64/activate.bat bash -c "echo 'Installing Conan...';python -m pip install conan;echo 'Detecting Conan profile...';conan profile detect;echo 'Writing global.conf...';echo 'tools.microsoft.bash:path=c:/wenv/msys2/msys64/usr/bin/bash.exe' > global.conf; echo 'tools.microsoft.bash:subsystem=msys2' >> global.conf;conan config install global.conf; mkdir -p build && cd build; cmake -A arm64 -S ../ -B .; cmake --build . --config Release"
